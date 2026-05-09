@@ -26,20 +26,20 @@ class PNGGenerator:
         
         # 축 선 그리기
         ax.annotate('', xy=(x_max, 0), xytext=(x_min, 0),
-                    arrowprops=dict(arrowstyle="->", color='black', lw=2))
+                    arrowprops=dict(arrowstyle="->", color='white', lw=2))
         ax.annotate('', xy=(0, y_max), xytext=(0, y_min),
-                    arrowprops=dict(arrowstyle="->", color='black', lw=2))
+                    arrowprops=dict(arrowstyle="->", color='white', lw=2))
         
         # 원점 및 축 라벨
-        ax.text(-0.3, -0.3, axes_data.get("origin_label", "O"), fontsize=16, fontweight='bold', fontstyle='italic')
-        ax.text(x_max - 0.2, -0.5, axes_data.get("x_label", "x"), fontsize=16, fontstyle='italic')
-        ax.text(-0.5, y_max - 0.2, axes_data.get("y_label", "y"), fontsize=16, fontstyle='italic')
+        ax.text(-0.3, -0.3, axes_data.get("origin_label", "O"), fontsize=16, fontweight='bold', fontstyle='italic', color='white')
+        ax.text(x_max - 0.2, -0.5, axes_data.get("x_label", "x"), fontsize=16, fontstyle='italic', color='white')
+        ax.text(-0.5, y_max - 0.2, axes_data.get("y_label", "y"), fontsize=16, fontstyle='italic', color='white')
 
         # 2. 곡선 그리기
         for curve in data.get("curves", []):
             points = np.array(curve.get("points", []))
             if len(points) > 1:
-                color = "black" # 전문가용은 검은색이 기본
+                color = "white" # 전문가용 흰색 테마
                 style = "-" if curve.get("style") != "dashed" else "--"
                 lw = curve.get("width", 2.5)
                 ax.plot(points[:, 0], points[:, 1], color=color, linestyle=style, linewidth=lw, zorder=3)
@@ -56,13 +56,13 @@ class PNGGenerator:
             
             # 점 렌더링
             if pt_type == "hollow":
-                ax.plot(px, py, 'o', markerfacecolor='white', markeredgecolor='black', markersize=8, markeredgewidth=1.5, zorder=5)
+                ax.plot(px, py, 'o', markerfacecolor='none', markeredgecolor='white', markersize=8, markeredgewidth=1.5, zorder=5)
             else:
-                ax.plot(px, py, 'o', color='black', markersize=8, zorder=5)
+                ax.plot(px, py, 'o', color='white', markersize=8, zorder=5)
             
             # 점 라벨
             if pt.get("label"):
-                ax.text(px + 0.2, py + 0.2, pt["label"], fontsize=14)
+                ax.text(px + 0.2, py + 0.2, pt["label"], fontsize=14, color='white')
 
         # 4. 추가 텍스트/LaTeX 라벨
         for label in data.get("labels", []):
@@ -72,7 +72,7 @@ class PNGGenerator:
                 # 이미 $가 있으면 그대로 사용, 없으면 감쌈
                 if not text.startswith("$"):
                     text = f"${text}$"
-            ax.text(lx, ly, text, fontsize=15, zorder=6)
+            ax.text(lx, ly, text, fontsize=15, zorder=6, color='white')
 
         # 최종 스타일링
         ax.set_xlim(x_min, x_max)

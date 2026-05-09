@@ -1,6 +1,7 @@
 import os
 import asyncio
 import sys
+import json
 from pathlib import Path
 
 # 프로젝트 루트 경로 추가
