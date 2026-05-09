@@ -33,23 +33,31 @@ async def process_images():
         print(f"Analyzing {img_name}...")
         try:
             # AI 분석 수행
-            data = await analyzer.analyze(str(img_path))
+            graph_list = await analyzer.analyze(str(img_path))
             
-            if "error" in data:
-                print(f"Error analyzing {img_name}: {data['error']}")
+            if not isinstance(graph_list, list):
+                graph_list = [graph_list] # 리스트가 아니면 리스트로 감쌈
+            
+            if "error" in graph_list[0]:
+                print(f"Error analyzing {img_name}: {graph_list[0]['error']}")
                 continue
                 
-            # PPT 변환 수행
-            output_name = img_name.replace(".jpg", ".pptx")
-            output_path = output_dir / output_name
-            
-            print(f"Converting to PPT: {output_name}...")
-            converter.create_ppt(data, str(output_path))
-            
-            # 투명 PNG 생성 수행 (추가요청)
-            png_name = img_name.replace(".jpg", ".png")
-            print(f"Generating Transparent PNG: {png_name}...")
-            png_gen.generate_transparent_png(data, png_name)
+            # 각 그래프별로 처리
+            for i, data in enumerate(graph_list):
+                suffix = f"_{i+1}" if len(graph_list) > 1 else ""
+                
+                # PPT 변환 수행
+                output_name = img_name.replace(".jpg", f"{suffix}.pptx")
+                output_path = output_dir / output_name
+                print(f"Converting to PPT: {output_name}...")
+                converter.create_ppt(data, str(output_path))
+                
+                # 투명 PNG 생성 수행
+                png_name = img_name.replace(".jpg", f"{suffix}.png")
+                print(f"Generating Transparent PNG: {png_name}...")
+                png_gen.generate_transparent_png(data, png_name)
+                
+            print(f"Successfully created {len(graph_list)} results for {img_name}")
             
             print(f"Successfully created results for {img_name}")
             

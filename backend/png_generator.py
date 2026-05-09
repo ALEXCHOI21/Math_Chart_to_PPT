@@ -12,9 +12,6 @@ class PNGGenerator:
         """
         분석된 데이터를 바탕으로 고품질 수학 그래프 PNG 생성 (투명 배경)
         """
-        if isinstance(data, list) and len(data) > 0:
-            data = data[0] # 리스트로 들어온 경우 첫 번째 그래프 우선 처리
-
         # 폰트 및 스타일 설정
         plt.rcParams['mathtext.fontset'] = 'cm' # Computer Modern (LaTeX 스타일)
         
@@ -71,8 +68,10 @@ class PNGGenerator:
         for label in data.get("labels", []):
             lx, ly = label.get("pos", [0, 0])
             text = label.get("text", "")
-            if label.get("is_latex"):
-                text = f"${text}$"
+            if label.get("is_latex") and text:
+                # 이미 $가 있으면 그대로 사용, 없으면 감쌈
+                if not text.startswith("$"):
+                    text = f"${text}$"
             ax.text(lx, ly, text, fontsize=15, zorder=6)
 
         # 최종 스타일링
