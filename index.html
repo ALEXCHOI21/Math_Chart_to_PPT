@@ -57,59 +57,63 @@
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
         }
 
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 2rem;
+            border-radius: 28px;
+            padding: 1.5rem;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
         }
 
         .card:hover {
             transform: translateY(-10px);
             border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--primary-glow);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px var(--primary-glow);
         }
 
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.4s;
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .card:hover::before {
-            opacity: 1;
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s;
+        }
+
+        .card:hover .image-preview img {
+            transform: scale(1.05);
         }
 
         .card-header {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .icon-box {
-            width: 48px;
-            height: 48px;
+            width: 40px;
+            height: 40px;
             background: rgba(14, 165, 233, 0.2);
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -117,14 +121,15 @@
         }
 
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 600;
         }
 
         .card-desc {
             color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            min-height: 3rem;
         }
 
         .btn {
@@ -133,13 +138,13 @@
             justify-content: center;
             background: var(--primary);
             color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
+            padding: 0.9rem 1.5rem;
+            border-radius: 14px;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.3s;
-            margin-top: auto;
+            margin-top: 0.5rem;
         }
 
         .btn:hover {
@@ -162,6 +167,8 @@
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: inline-block;
         }
     </style>
 </head>
@@ -170,43 +177,52 @@
 <header>
     <div class="badge">ChoiGPT Exclusive Service</div>
     <h1>Math Graph Engine</h1>
-    <p class="subtitle">AI가 분석하고 에이전트가 직접 변환한 PPT 결과물 리스트입니다.</p>
+    <p class="subtitle">이미지 분석부터 PPT 변환까지, 에이전트가 직접 완료한 결과물입니다.</p>
 </header>
 
 <div class="container">
     <!-- Result Card 1 -->
     <div class="card">
+        <div class="image-preview">
+            <img src="이미지/1.jpg" alt="Graph 1 Original">
+        </div>
         <div class="card-header">
             <div class="icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div class="card-title">변환 결과물 #1</div>
         </div>
-        <p class="card-desc">이미지 1.jpg 기반으로 생성된 수학 그래프 PPT입니다. 축, 곡선, 라벨이 편집 가능한 개체로 포함되어 있습니다.</p>
+        <p class="card-desc">축과 기본 함수 곡선을 완벽하게 객체화했습니다.</p>
         <a href="output/1.pptx" class="btn">PPT 다운로드</a>
     </div>
 
     <!-- Result Card 2 -->
     <div class="card">
+        <div class="image-preview">
+            <img src="이미지/2.jpg" alt="Graph 2 Original">
+        </div>
         <div class="card-header">
             <div class="icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div class="card-title">변환 결과물 #2</div>
         </div>
-        <p class="card-desc">이미지 2.jpg 기반으로 생성된 수학 그래프 PPT입니다. 복합적인 곡선 형태를 분석하여 벡터 데이터로 변환 완료했습니다.</p>
+        <p class="card-desc">복합적인 곡선 궤적을 정밀 분석하여 변환 완료했습니다.</p>
         <a href="output/2.pptx" class="btn">PPT 다운로드</a>
     </div>
 
     <!-- Result Card 3 -->
     <div class="card">
+        <div class="image-preview">
+            <img src="이미지/3.jpg" alt="Graph 3 Original">
+        </div>
         <div class="card-header">
             <div class="icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
             <div class="card-title">변환 결과물 #3</div>
         </div>
-        <p class="card-desc">이미지 3.jpg 기반으로 생성된 수학 그래프 PPT입니다. 격자 및 보조선 데이터가 포함되어 정밀한 편집이 가능합니다.</p>
+        <p class="card-desc">격자 무늬와 복수 라벨을 포함한 고난도 변환 건입니다.</p>
         <a href="output/3.pptx" class="btn">PPT 다운로드</a>
     </div>
 </div>
