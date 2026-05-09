@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+python-pptx
+google-generativeai
+python-multipart
+python-dotenv
+pillow

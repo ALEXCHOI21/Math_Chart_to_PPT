@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antigravity Graph - 수학 그래프 PPT 변환 도구</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-main">
+                <div class="logo">
+                    <span class="brand">Antigravity</span>
+                    <span class="product">Graph Engine</span>
+                </div>
+                <div class="version-badge">v1.0.0 Alpha</div>
+            </div>
+            <p class="subtitle">수학 그래프 이미지를 편집 가능한 PPT 개체로 변환</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <div class="card upload-card" id="drop-zone">
+                    <div class="upload-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <h3>그래프 이미지 업로드</h3>
+                    <p>이미지를 드래그하거나 클릭하여 선택하세요 (PNG, JPG)</p>
+                    <input type="file" id="file-input" hidden accept="image/*">
+                    <button class="primary-btn" onclick="document.getElementById('file-input').click()">파일 선택</button>
+                </div>
+            </section>
+
+            <section class="result-section" id="result-area" style="display: none;">
+                <div class="card result-card">
+                    <div class="card-header">
+                        <h3>분석 결과</h3>
+                        <span id="status-tag" class="badge">처리 완료</span>
+                    </div>
+                    <div class="preview-container">
+                        <div id="image-preview" class="image-box"></div>
+                        <div class="arrow-box">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </div>
+                        <div id="data-preview" class="data-box">
+                            <pre id="json-display"></pre>
+                        </div>
+                    </div>
+                    <div class="action-bar">
+                        <button id="download-btn" class="primary-btn pulse">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            PPT 파일 다운로드 (.pptx)
+                        </button>
+                        <button class="secondary-btn" onclick="location.reload()">새로 고침</button>
+                    </div>
+                </div>
+            </section>
+
+            <div id="loading-overlay" class="overlay" style="display: none;">
+                <div class="loader-content">
+                    <div class="spinner"></div>
+                    <h3>AI가 그래프를 분석하고 있습니다...</h3>
+                    <p>좌표축과 곡선 데이터를 추출 중입니다.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 ChoiGPT Corp. All Rights Reserved.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
