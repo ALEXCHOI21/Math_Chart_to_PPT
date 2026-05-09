@@ -89,12 +89,13 @@ class PPTConverter:
                 line.line.dash_style = 2
 
     def _draw_point(self, slide, point):
-        x, y = self._to_ppt_coords(point["coord"][0], point["coord"][1])
+        coord = point.get("coord") or [point.get("x", 0), point.get("y", 0)]
+        x, y = self._to_ppt_coords(coord[0], coord[1])
         size = Pt(6)
         # 점 그리기 (원)
         shp = slide.shapes.add_shape(MSO_SHAPE.OVAL, x - size/2, y - size/2, size, size)
         if point.get("type") == "hollow":
-            shp.fill.no_fill()
+            shp.fill.background() # 투명 처리 (배경색 사용)
             shp.line.color.rgb = RGBColor(255, 255, 255)
         else:
             shp.fill.solid()
@@ -102,10 +103,11 @@ class PPTConverter:
             shp.line.color.rgb = RGBColor(255, 255, 255)
 
     def _draw_label(self, slide, label):
-        x, y = self._to_ppt_coords(label["pos"][0], label["pos"][1])
+        pos = label.get("pos") or [label.get("x", 0), label.get("y", 0)]
+        x, y = self._to_ppt_coords(pos[0], pos[1])
         tx = slide.shapes.add_textbox(x, y, Pt(50), Pt(20))
         tf = tx.text_frame
-        tf.text = label["text"]
+        tf.text = label.get("text", "")
         for para in tf.paragraphs:
             para.font.color.rgb = RGBColor(255, 255, 255)
             para.font.size = Pt(12)

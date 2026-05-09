@@ -9,13 +9,15 @@ sys.path.append(str(ROOT_PATH))
 
 from backend.ai_analyzer import GraphAnalyzer
 from backend.converter import PPTConverter
+from backend.png_generator import PNGGenerator
 
 async def process_images():
-    analyzer = GraphAnalyzer()
-    converter = PPTConverter()
-    
     image_dir = ROOT_PATH / "이미지"
     output_dir = ROOT_PATH / "output"
+    
+    analyzer = GraphAnalyzer()
+    converter = PPTConverter()
+    png_gen = PNGGenerator(str(output_dir))
     
     if not output_dir.exists():
         output_dir.mkdir()
@@ -43,7 +45,13 @@ async def process_images():
             
             print(f"Converting to PPT: {output_name}...")
             converter.create_ppt(data, str(output_path))
-            print(f"Successfully created {output_path}")
+            
+            # 투명 PNG 생성 수행 (추가요청)
+            png_name = img_name.replace(".jpg", ".png")
+            print(f"Generating Transparent PNG: {png_name}...")
+            png_gen.generate_transparent_png(data, png_name)
+            
+            print(f"Successfully created results for {img_name}")
             
         except Exception as e:
             print(f"Failed to process {img_name}: {e}")
