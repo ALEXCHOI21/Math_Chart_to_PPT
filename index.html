@@ -99,9 +99,13 @@
                 <p>결과 데이터를 불러오는 중...</p>
             </div>
         </div>
+        
+        <div class="mt-20 text-center py-6 border-t border-white/5 opacity-30">
+            <p class="text-xs font-mono uppercase tracking-widest">Last Engine Update: 2026-05-09 18:28 (KST)</p>
+        </div>
     </main>
 
-    <footer class="py-12 border-t border-white/5 text-center text-gray-500">
+    <footer class="py-12 border-b border-white/5 text-center text-gray-500">
         <p class="text-sm font-semibold tracking-widest uppercase">© 2026 ChoiGPT Corp. All Rights Reserved.</p>
     </footer>
 
@@ -111,8 +115,9 @@
         // Load data and render cards
         async function loadResults() {
             const grid = document.getElementById('results-grid');
+            const ts = Date.now();
             try {
-                const response = await fetch('output/data.json?t=' + Date.now());
+                const response = await fetch('output/data.json?t=' + ts);
                 const data = await response.json();
                 
                 if (data.length === 0) {
@@ -124,15 +129,15 @@
                     <section class="glass-panel rounded-3xl p-6 hover:border-indigo-500/30 transition-all group">
                         <div class="flex justify-between items-center mb-4">
                             <h4 class="font-bold text-gray-300">Graph ${item.id}</h4>
-                            <span class="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded-md uppercase font-bold tracking-tighter">Rendered</span>
+                            <span class="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-1 rounded-md uppercase font-bold tracking-tighter">White Theme</span>
                         </div>
-                        <div class="preview-container rounded-2xl p-4 flex items-center justify-center mb-6 h-56 overflow-hidden">
-                            <img src="${item.png}" alt="${item.id}" class="max-w-full h-full object-contain drop-shadow-xl group-hover:scale-110 transition-transform duration-500">
+                        <div class="preview-container rounded-2xl p-4 flex items-center justify-center mb-6 h-56 overflow-hidden bg-black">
+                            <img src="${item.png}?t=${ts}" alt="${item.id}" class="max-w-full h-full object-contain drop-shadow-xl group-hover:scale-110 transition-transform duration-500">
                         </div>
                         <div class="flex gap-3">
-                            <button onclick="copyToClipboard('${item.png}')" class="flex-1 bg-white/5 hover:bg-white/10 py-3 rounded-xl border border-white/10 text-xs font-bold transition-all">COPY</button>
-                            <a href="${item.png}" download class="flex-1 text-center bg-white/5 hover:bg-white/10 py-3 rounded-xl border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-2">PNG</a>
-                            <a href="${item.pptx}" download class="flex-1 text-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 py-3 rounded-xl border border-indigo-500/20 text-xs font-bold transition-all flex items-center justify-center gap-2">PPTX</a>
+                            <button onclick="copyToClipboard('${item.png}?t=${ts}')" class="flex-1 bg-white/5 hover:bg-white/10 py-3 rounded-xl border border-white/10 text-xs font-bold transition-all">COPY</button>
+                            <a href="${item.png}?t=${ts}" download class="flex-1 text-center bg-white/5 hover:bg-white/10 py-3 rounded-xl border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-2">PNG</a>
+                            <a href="${item.pptx}?t=${ts}" download class="flex-1 text-center bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 py-3 rounded-xl border border-indigo-500/20 text-xs font-bold transition-all flex items-center justify-center gap-2">PPTX</a>
                         </div>
                     </section>
                 `).join('');
