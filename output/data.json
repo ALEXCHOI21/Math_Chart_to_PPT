@@ -43,5 +43,20 @@
         "id": "3_3",
         "png": "output/3_3.png",
         "pptx": "output/3_3.pptx"
+    },
+    {
+        "id": "4",
+        "png": "output/4.png",
+        "pptx": "output/4.pptx"
+    },
+    {
+        "id": "5",
+        "png": "output/5.png",
+        "pptx": "output/5.pptx"
+    },
+    {
+        "id": "6",
+        "png": "output/6.png",
+        "pptx": "output/6.pptx"
     }
 ]
