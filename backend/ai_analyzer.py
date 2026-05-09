@@ -35,38 +35,39 @@ class GraphAnalyzer:
         img = Image.open(image_path)
         
         prompt = """
-        이 이미지에 있는 수학 그래프를 분석하여 PPT 개체로 재구성하기 위한 상세 데이터를 추출해주세요.
-        출력은 반드시 유효한 JSON 형식이어야 하며, 다른 텍스트는 포함하지 마세요.
+        사용자가 이미지 내에서 **회색(또는 검은색) 펜으로 동그라미 친 그래프 영역**만 집중적으로 분석하여 고화질 투명 PNG로 재현하기 위한 정밀 데이터를 추출해주세요.
+        출력은 반드시 유효한 JSON 형식이어야 하며, 다른 설명은 생략하세요.
 
-        분석 항목:
-        1. axes: x축과 y축의 범위, 원점 위치, 축의 화살표 유무.
-        2. grid: 격자선 유무 및 간격.
-        3. curves: 그래프 선의 종류(직선, 곡선, 점선 등)와 주요 좌표점 리스트(곡선의 경우 최소 10개 이상의 샘플 포인트).
-        4. points: 강조된 점(예: 극한값, 교점)의 좌표와 채워짐 여부(solid/hollow).
-        5. labels: 축 이름, 눈금 숫자, 함수 수식(LaTeX) 및 그 위치.
+        분석 원칙:
+        1. **동그라미 영역 집중**: 페이지 전체가 아닌, 원형으로 표시된 그래프 본체만 분석합니다. (이미지에 여러 개가 있다면 리스트 형태로 반환)
+        2. **미학적 정밀도**: 축의 화살표 위치, 원점 'O', 축 라벨 'x', 'y'의 정확한 상대적 위치를 파악하세요.
+        3. **수식 렌더링**: 그래프에 포함된 모든 수식(예: y=f(x), lim f(x)=L 등)을 완벽한 LaTeX 형식으로 추출하세요.
+        4. **곡선 재현**: 곡선의 형태를 완벽하게 재현할 수 있도록 샘플 포인트를 충분히(20개 이상) 추출하세요.
 
-        JSON 구조 예시:
-        {
-          "axes": {
-            "x_min": -5, "x_max": 5, "y_min": -5, "y_max": 5,
-            "origin": [0, 0], "arrows": true
-          },
-          "curves": [
-            {
-              "type": "bezier",
-              "points": [[x1, y1], [x2, y2], ...],
-              "equation": "y=f(x)",
-              "style": "solid"
-            }
-          ],
-          "points": [
-            {"coord": [1, 2], "type": "hollow", "label": "L"}
-          ],
-          "labels": [
-            {"text": "x", "pos": [5.2, 0]},
-            {"text": "y", "pos": [0, 5.2]}
-          ]
-        }
+        JSON 구조:
+        [
+          {
+            "chart_id": 1,
+            "axes": {
+              "x_range": [min, max], "y_range": [min, max],
+              "origin_label": "O", "x_label": "x", "y_label": "y",
+              "has_arrows": true
+            },
+            "curves": [
+              {
+                "points": [[x1, y1], ...],
+                "label": "y=f(x)", "is_latex": true,
+                "style": "solid", "color": "black", "width": 2
+              }
+            ],
+            "points": [
+              {"x": 1, "y": 2, "type": "hollow", "label": "L", "show_dashed_lines": true}
+            ],
+            "labels": [
+                {"text": "\\lim_{x \to a} f(x) = L", "pos": [x, y], "is_latex": true}
+            ]
+          }
+        ]
         """
 
         try:
