@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChoiGPT | Math Graph to PPT Result</title>
+    <title>ChoiGPT | Math Graph Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --primary: #0ea5e9;
+            --secondary: #8b5cf6;
             --primary-glow: rgba(14, 165, 233, 0.3);
+            --secondary-glow: rgba(139, 92, 246, 0.3);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --accent: #38bdf8;
         }
 
         * {
@@ -43,7 +44,7 @@
             font-family: 'Outfit', sans-serif;
             font-size: 3rem;
             font-weight: 700;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
+            background: linear-gradient(to right, #38bdf8, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
@@ -52,184 +53,232 @@
         .subtitle {
             color: var(--text-muted);
             font-size: 1.1rem;
-            letter-spacing: 0.05em;
         }
 
         .container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2.5rem;
         }
 
         .card {
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 28px;
-            padding: 1.5rem;
+            border-radius: 32px;
+            padding: 2rem;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1.5rem;
         }
 
         .card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-12px);
             border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px var(--primary-glow);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
         }
 
-        .image-preview {
+        .preview-box {
             width: 100%;
-            height: 200px;
-            border-radius: 18px;
-            overflow: hidden;
+            height: 220px;
             background: #000;
+            border-radius: 20px;
+            overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
         }
 
-        .image-preview img {
+        .preview-box img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            transition: transform 0.5s;
         }
 
-        .card:hover .image-preview img {
-            transform: scale(1.05);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .icon-box {
-            width: 40px;
-            height: 40px;
-            background: rgba(14, 165, 233, 0.2);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .card-desc {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            min-height: 3rem;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary);
-            color: white;
-            padding: 0.9rem 1.5rem;
-            border-radius: 14px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s;
+        .action-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
             margin-top: 0.5rem;
         }
 
-        .btn:hover {
-            background: var(--accent);
-            box-shadow: 0 0 15px var(--primary-glow);
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+
+        .btn-copy:hover {
+            box-shadow: 0 0 20px var(--secondary-glow);
+            transform: scale(1.02);
+        }
+
+        .btn-download {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-download:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .btn-ppt {
+            grid-column: span 2;
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+        }
+
+        .btn-ppt:hover {
+            background: #334155;
+            color: white;
         }
 
         footer {
             margin-top: 6rem;
             color: var(--text-muted);
             font-size: 0.85rem;
-            text-align: center;
         }
 
-        .badge {
-            background: rgba(14, 165, 233, 0.1);
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+        /* Toast Notification */
+        #toast {
+            position: fixed;
+            bottom: 2rem;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
             font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-            display: inline-block;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transform: translateY(200%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        #toast.show {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="badge">ChoiGPT Exclusive Service</div>
     <h1>Math Graph Engine</h1>
-    <p class="subtitle">이미지 분석부터 PPT 변환까지, 에이전트가 직접 완료한 결과물입니다.</p>
+    <p class="subtitle">그래프 분석 결과물 - PNG 다운로드 및 클립보드 복사 기능을 제공합니다.</p>
 </header>
 
 <div class="container">
-    <!-- Result Card 1 -->
+    <!-- Card 1 -->
     <div class="card">
-        <div class="image-preview">
-            <img src="이미지/1.jpg" alt="Graph 1 Original">
+        <div class="preview-box">
+            <img id="img1" src="이미지/1.jpg" alt="Graph 1">
         </div>
-        <div class="card-header">
-            <div class="icon-box">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <div class="card-title">변환 결과물 #1</div>
+        <div class="action-group">
+            <button class="btn btn-copy" onclick="copyToClipboard('이미지/1.jpg')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                클립보드 복사
+            </button>
+            <a href="이미지/1.jpg" download="graph_1.png" class="btn btn-download">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                PNG 다운로드
+            </a>
+            <a href="output/1.pptx" class="btn btn-ppt">
+                PPT 변환본 내려받기
+            </a>
         </div>
-        <p class="card-desc">축과 기본 함수 곡선을 완벽하게 객체화했습니다.</p>
-        <a href="output/1.pptx" class="btn">PPT 다운로드</a>
     </div>
 
-    <!-- Result Card 2 -->
+    <!-- Card 2 -->
     <div class="card">
-        <div class="image-preview">
-            <img src="이미지/2.jpg" alt="Graph 2 Original">
+        <div class="preview-box">
+            <img id="img2" src="이미지/2.jpg" alt="Graph 2">
         </div>
-        <div class="card-header">
-            <div class="icon-box">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <div class="card-title">변환 결과물 #2</div>
+        <div class="action-group">
+            <button class="btn btn-copy" onclick="copyToClipboard('이미지/2.jpg')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                클립보드 복사
+            </button>
+            <a href="이미지/2.jpg" download="graph_2.png" class="btn btn-download">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                PNG 다운로드
+            </a>
+            <a href="output/2.pptx" class="btn btn-ppt">
+                PPT 변환본 내려받기
+            </a>
         </div>
-        <p class="card-desc">복합적인 곡선 궤적을 정밀 분석하여 변환 완료했습니다.</p>
-        <a href="output/2.pptx" class="btn">PPT 다운로드</a>
     </div>
 
-    <!-- Result Card 3 -->
+    <!-- Card 3 -->
     <div class="card">
-        <div class="image-preview">
-            <img src="이미지/3.jpg" alt="Graph 3 Original">
+        <div class="preview-box">
+            <img id="img3" src="이미지/3.jpg" alt="Graph 3">
         </div>
-        <div class="card-header">
-            <div class="icon-box">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <div class="card-title">변환 결과물 #3</div>
+        <div class="action-group">
+            <button class="btn btn-copy" onclick="copyToClipboard('이미지/3.jpg')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                클립보드 복사
+            </button>
+            <a href="이미지/3.jpg" download="graph_3.png" class="btn btn-download">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                PNG 다운로드
+            </a>
+            <a href="output/3.pptx" class="btn btn-ppt">
+                PPT 변환본 내려받기
+            </a>
         </div>
-        <p class="card-desc">격자 무늬와 복수 라벨을 포함한 고난도 변환 건입니다.</p>
-        <a href="output/3.pptx" class="btn">PPT 다운로드</a>
     </div>
 </div>
+
+<div id="toast">클립보드에 이미지가 복사되었습니다!</div>
 
 <footer>
     <p>© 2026 ChoiGPT Corp. All Rights Reserved.</p>
 </footer>
+
+<script>
+    async function copyToClipboard(imgUrl) {
+        try {
+            const response = await fetch(imgUrl);
+            const blob = await response.blob();
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    [blob.type]: blob
+                })
+            ]);
+            showToast();
+        } catch (err) {
+            console.error('복사 실패:', err);
+            alert('이미지 복사 기능을 지원하지 않는 브라우저이거나 오류가 발생했습니다.');
+        }
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    }
+</script>
 
 </body>
 </html>
