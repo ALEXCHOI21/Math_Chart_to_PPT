@@ -14,15 +14,13 @@ if INTERNAL_LIB_PATH not in sys.path:
     sys.path.append(INTERNAL_LIB_PATH)
 
 # ── API 키 로드 ────────────────────────────────────────────────
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 if not api_key:
-    raise RuntimeError("❌ GOOGLE_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+    raise RuntimeError("❌ GOOGLE_API_KEY 또는 GEMINI_API_KEY가 설정되지 않았습니다. .env 파일이나 서버 환경변수를 확인하세요.")
 
-# ── 신규 google-genai SDK 사용 ─────────────────────────────────
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
-client = genai.Client(api_key=api_key)
+genai.configure(api_key=api_key)
 
 
 class GraphAnalyzer:
@@ -33,59 +31,47 @@ class GraphAnalyzer:
 
     MODEL = "gemini-2.5-flash"
 
-    PROMPT = """당신은 수학 교재의 그래프를 분석하는 전문가입니다.
-이미지 속 수학 그래프를 분석하여 matplotlib으로 완벽하게 재현할 수 있는 JSON 데이터를 반환하세요.
-반드시 JSON 배열만 출력하세요. 설명, 주석, 마크다운 없이 순수 JSON만 출력합니다.
+    PROMPT = """당신은 세계 최고의 수학 교육용 그래프 분석 전문가입니다. 이미지에서 수학 그래프를 완벽하게 재구성할 수 있도록 정밀한 JSON 데이터를 생성하십시오.
 
-[분석 체크리스트]
-1. 축(axis): x축·y축의 범위, 원점 O 위치, 화살표 방향
-2. 곡선(curve): S자·포물선·직선 등 형태를 정확히 파악하고, 좌표 샘플 30개 이상 추출
-3. 특수점(point): hollow(빈 원) / filled(채운 원) 구분, 좌표 정확히
-4. 점선(dashed): 수평·수직 점선의 시작/끝 좌표
-5. 라벨(label): L, a, O, x, y 등 모든 텍스트와 위치
-6. 극한 화살표: x→a 방향 화살표가 있으면 방향과 위치 모두 포함
-7. 수식: LaTeX 형식으로 정확히 추출
+[분석 핵심 원칙 - Zero-Defect]
+1. 곡선(Curves)의 미학:
+   - 곡선은 절대로 각지면 안 됩니다. 곡률이 큰 구간(예: 굴곡진 부위, 극점 근처)은 좌표를 극도로 촘촘하게(최소 0.05 단위 간격) 추출하십시오.
+   - 곡선이 축과 만나는 지점(절편), 함숫값이 불연속인 지점을 수학적으로 정확하게 파악하십시오.
+2. 기하학적 정밀도:
+   - 원점(O), 축 라벨(x, y), 좌표값(a, L) 등의 위치를 이미지와 1:1로 일치시키십시오.
+   - 보조선(Dashed Lines)은 함숫값의 대응 관계를 명확히 보여주어야 합니다.
+3. 화살표(Arrows)와 흐름:
+   - 극한(Limit)의 흐름을 나타내는 화살표를 빠짐없이 추출하십시오. 
+   - 특히 곡선을 따라가는 화살표(`is_curved`: true)는 곡선상의 점들을 정확히 따라가는 15개 이상의 좌표 리스트를 포함해야 합니다.
+4. 라벨 배치:
+   - 라벨은 텍스트 내용뿐만 아니라 위치(`pos`)가 매우 중요합니다. 그래프 선이나 점과 겹치지 않도록 미세 조정된 좌표를 제공하십시오.
 
 [출력 JSON 구조]
 [
   {
     "chart_id": 1,
     "axes": {
-      "x_range": [-1, 5],
-      "y_range": [-1, 4],
-      "origin_label": "O",
-      "x_label": "x",
-      "y_label": "y",
-      "has_arrows": true
+      "x_range": [min, max],
+      "y_range": [min, max],
+      "origin_label": "O", "x_label": "x", "y_label": "y"
     },
     "curves": [
       {
-        "points": [[x1,y1],[x2,y2],...],
-        "label": "y=f(x)",
-        "label_pos": [x, y],
-        "is_latex": false,
-        "style": "solid",
-        "width": 2.5
+        "points": [[x1,y1],[x2,y2],...], // 곡선을 완벽히 묘사하는 100~200개 점 (초정밀)
+        "label": "y=f(x)", "label_pos": [lx, ly], "style": "solid", "width": 2.5
       }
     ],
-    "dashed_lines": [
-      {"type": "horizontal", "y": 2.1, "x_start": 0, "x_end": 3.2},
-      {"type": "vertical",   "x": 3.2, "y_start": 0, "y_end": 2.1}
-    ],
-    "points": [
-      {"x": 3.2, "y": 2.1, "type": "hollow", "label": "", "show_dashed": true}
-    ],
-    "axis_labels": [
-      {"text": "L", "pos": [-0.3, 2.1], "is_latex": false},
-      {"text": "a", "pos": [3.2, -0.3], "is_latex": false}
-    ],
     "arrows": [
-      {"from": [1.5, 0.05], "to": [3.0, 0.05], "label": ""},
-      {"from": [4.5, 0.05], "to": [3.4, 0.05], "label": ""}
+      {
+        "from": [x,y], "to": [x,y],
+        "is_curved": true/false,
+        "points": [[x1,y1],[x2,y2],...], // 곡선형 화살표일 경우 경로 점들
+        "label": ""
+      }
     ],
-    "labels": [
-      {"text": "y=f(x)", "pos": [4.2, 3.5], "is_latex": false}
-    ]
+    "points": [{"x": x, "y": y, "type": "hollow/filled", "color": "#FFFFFF"}],
+    "dashed_lines": [{"type": "horizontal/vertical", "val": v, "start": s, "end": e}],
+    "labels": [{"text": "f(a)", "pos": [x, y]}]
   }
 ]"""
 
@@ -93,21 +79,20 @@ class GraphAnalyzer:
         """이미지 경로를 받아 그래프 JSON 데이터 리스트를 반환."""
         import asyncio
 
-        with open(image_path, "rb") as f:
-            img_bytes = f.read()
-
         # 확장자로 MIME 타입 결정
         ext = Path(image_path).suffix.lower()
         mime = "image/jpeg" if ext in (".jpg", ".jpeg") else "image/png"
 
+        with open(image_path, "rb") as f:
+            img_data = f.read()
+
+        model = genai.GenerativeModel(self.MODEL)
+
         def _call():
-            response = client.models.generate_content(
-                model=self.MODEL,
-                contents=[
-                    types.Part.from_bytes(data=img_bytes, mime_type=mime),
-                    self.PROMPT
-                ]
-            )
+            response = model.generate_content([
+                {"mime_type": mime, "data": img_data},
+                self.PROMPT
+            ])
             return response.text
 
         try:

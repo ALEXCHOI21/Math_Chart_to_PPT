@@ -23,3 +23,11 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Project Specific
+scratch/
+temp/
+*.md
+!README.md
+!📋_RENDER_배포_가이드.md
+!20260510_웹사이트_현황분석_및_개선계획.md

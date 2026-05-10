@@ -27,17 +27,17 @@ async def process_images():
          if f.suffix.lower() in ('.jpg', '.jpeg', '.png')],
         key=lambda p: p.name
     )
-    print(f"📂 총 {len(images)}개 이미지 발견: {[f.name for f in images]}\n")
+    print(f"📂 총 {len(images)}개 이미지 발견: {[f.name for f in images]}", flush=True)
 
     success_count = 0
 
     for img_path in images:
-        stem = img_path.stem          # "1", "2", … "6"
+        stem = img_path.stem
         png_name  = f"{stem}.png"
         pptx_name = f"{stem}.pptx"
 
-        print(f"{'─'*50}")
-        print(f"🔍 [{stem}] 분석 시작: {img_path.name}")
+        print(f"\n{'─'*50}", flush=True)
+        print(f"🔍 [{stem}] 분석 시작: {img_path.name}", flush=True)
 
         try:
             # ① Gemini 분석 — 이미지 1장 = 그래프 1개로 요청
