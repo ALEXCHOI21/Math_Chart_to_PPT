@@ -24,11 +24,11 @@ class PNGGenerator:
         fig.patch.set_alpha(0.0)
 
         WHITE  = 'white'
-        GRAY   = '#bbbbbb'
-        LW_AX  = 1.5   # Professional thin axes
-        LW_CRV = 2.5   # Elegant curve thickness
-        LW_DSH = 1.0   # Delicate dashed lines
-        FS     = 18    # Standard academic font size (Increased)
+        GRAY   = '#dddddd'
+        LW_AX  = 2.0   # Solid and clear axes
+        LW_CRV = 3.0   # Bold and professional curve
+        LW_DSH = 1.2   # Clear dashed lines
+        FS     = 20    # Enhanced font size for readability
 
         # ── 1. 축 범위 설정 ──────────────────────────────────────
         axes_data = data.get("axes", {})
@@ -57,9 +57,12 @@ class PNGGenerator:
         label_offset_x = (x_max - x_min) * 0.03
         label_offset_y = (y_max - y_min) * 0.03
 
-        ax.text(x_max + x_pad*0.1, -label_offset_y*1.5, f"${xl}$", fontsize=FS+2, color=WHITE, ha='center', fontweight='bold')
-        ax.text(-label_offset_x*1.5, y_max + y_pad*0.1, f"${yl}$", fontsize=FS+2, color=WHITE, va='center', fontweight='bold')
-        ax.text(-label_offset_x, -label_offset_y, f"${ox}$", fontsize=FS, color=WHITE, ha='right', va='top')
+        # X-axis label at the far right end, slightly above the axis
+        ax.text(x_max + x_pad*0.2, -label_offset_y*0.5, f"${xl}$", fontsize=FS+4, color=WHITE, ha='left', va='center', fontweight='bold')
+        # Y-axis label at the top, slightly to the right of the axis
+        ax.text(label_offset_x*0.5, y_max + y_pad*0.2, f"${yl}$", fontsize=FS+4, color=WHITE, ha='center', va='bottom', fontweight='bold')
+        # Origin label usually at bottom-left or bottom-right of the intersection
+        ax.text(-label_offset_x*0.5, -label_offset_y*0.5, f"${ox}$", fontsize=FS, color=WHITE, ha='right', va='top')
 
         # ── 4. 그래프 곡선 (Parametric Spline Smoothing) ────────────────
         from scipy.interpolate import make_interp_spline
@@ -76,8 +79,9 @@ class PNGGenerator:
             if len(pts) >= 3:
                 try:
                     # Parametric interpolation handles all curve shapes smoothly
+                    # Higher density for "Perfect Clone" smoothness
                     t = np.linspace(0, 1, len(pts))
-                    t_new = np.linspace(0, 1, 400)
+                    t_new = np.linspace(0, 1, 1000) 
                     k = min(3, len(pts) - 1)
                     spl_x = make_interp_spline(t, pts[:, 0], k=k)(t_new)
                     spl_y = make_interp_spline(t, pts[:, 1], k=k)(t_new)
@@ -112,25 +116,44 @@ class PNGGenerator:
             color = pt.get("color", WHITE)
 
             if pt_type == "hollow":
-                ax.scatter(px, py, facecolors='black', edgecolors=color, s=120, linewidth=2.5, zorder=6)
+                # Hollow points should have a clear hole (using black for contrast on transparent/dark)
+                ax.scatter(px, py, facecolors='black', edgecolors=color, s=150, linewidth=3.0, zorder=10)
+                # Inner smaller black circle to ensure 'hollow' look even if background alpha is tricky
+                ax.scatter(px, py, facecolors='black', s=40, zorder=11)
             else:
-                ax.scatter(px, py, color=color, s=120, zorder=6)
+                ax.scatter(px, py, color=color, s=150, zorder=10)
 
-        # ── 7. 라벨 처리 (labels) ─────────────────────────────
+        # ── 7. 라벨 처리 통합 (labels + axis_labels) ─────────────────────────────
+        # 섹션 7과 9를 통합 - 이중 렌더링 버그 제거
         import matplotlib.patheffects as PathEffects
-        outline = [PathEffects.withStroke(linewidth=3, foreground="#1e1e23")]
+        outline = [PathEffects.withStroke(linewidth=3, foreground="black")]
         
         # 'labels'와 'axis_labels'(하위호환) 모두 지원
         all_labels = data.get("labels", []) + data.get("axis_labels", [])
+        _rendered_labels = set()  # 중복 렌더링 방지
         for lb in all_labels:
             pos = lb.get("pos", [0, 0])
-            text = lb.get("text", "")
+            raw_text = lb.get("text", "")
             color = lb.get("color", WHITE)
-            if not text: continue
+            if not raw_text: continue
             
-            txt_obj = ax.text(pos[0], pos[1], f"${text}$",
+            # 수식 문자가 포함된 경우에만 $...$ 래핑
+            # 이미 $로 시작/끝나면 그대로, 아니면 조건부 추가
+            has_math = any(c in raw_text for c in ['=', '(', ')', '^', '_', '\\'])
+            if has_math and not raw_text.startswith('$'):
+                display_text = f"${raw_text}$"
+            else:
+                display_text = raw_text  # L, a, O 같은 단순 라벨은 $ 없이
+            
+            key = f"{raw_text}_{pos[0]:.1f}_{pos[1]:.1f}"
+            if key in _rendered_labels:
+                continue
+            _rendered_labels.add(key)
+            
+            txt_obj = ax.text(pos[0], pos[1], display_text,
                     fontsize=FS+2, color=color,
-                    ha='center', va='center', zorder=7)
+                    ha='center', va='center', zorder=7,
+                    fontweight='bold')
             txt_obj.set_path_effects(outline)
 
         # ── 8. 극한 화살표 (곡선형 화살표 고도화) ─────────────────────
@@ -167,24 +190,12 @@ class PNGGenerator:
             else:
                 arrow_color = arr.get("color", WHITE)
                 ax.annotate('', xy=(tx, ty), xytext=(fx, fy),
-                            arrowprops=dict(arrowstyle="-|>", color=arrow_color, lw=1.5),
-                            zorder=4)
+                            arrowprops=dict(arrowstyle="-|>", color=arrow_color,
+                                           lw=1.8, mutation_scale=14),
+                            zorder=5)
 
-        # ── 9. 수식/텍스트 라벨 ─────────────────────────────────
-        for label in data.get("labels", []):
-            lx, ly = label.get("pos", [0, 0])
-            text   = label.get("text", "")
-            if not text: continue
-            
-            # LaTeX 수식 자동 변환 ($ 추가)
-            if any(c in text for c in ['=', '(', ')', '^', '_']):
-                text = f"${text}$"
-                
-            txt_obj = ax.text(lx, ly, text,
-                    fontsize=FS+4, color=WHITE,
-                    fontweight='bold', zorder=6)
-            # Remove outline for cleaner look on black background
-            # txt_obj.set_path_effects(outline)
+        # ── 9. [통합 완료 - 섹션 7에서 처리] ───────────────────────────────────
+        # 이전 중복 렌더링 로직 제거됨 (라벨이 두 번 그려져 'L'→'B'로 보이는 버그 방지)
 
         # ── 10. 최종 저장 ────────────────────────────────────────
         ax.set_xlim(x_min - x_pad, x_max + x_pad)

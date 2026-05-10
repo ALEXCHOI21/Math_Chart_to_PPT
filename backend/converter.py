@@ -102,7 +102,7 @@ class PPTConverter:
             if len(pts_arr) >= 3:
                 # Parametric interpolation: handles non-monotonic curves correctly
                 t = np.linspace(0, 1, len(pts_arr))
-                t_new = np.linspace(0, 1, 300)
+                t_new = np.linspace(0, 1, 600) # Increased for Perfect Clone
                 k = min(3, len(pts_arr) - 1)
                 spl_x = make_interp_spline(t, pts_arr[:, 0], k=k)(t_new)
                 spl_y = make_interp_spline(t, pts_arr[:, 1], k=k)(t_new)
@@ -190,10 +190,10 @@ class PPTConverter:
     def _draw_point(self, slide, point):
         coord = point.get("coord") or [point.get("x", 0), point.get("y", 0)]
         x, y = self._to_ppt_coords(coord[0], coord[1])
-        size = Pt(12) # Increased size
+        size = Pt(14) # Optimal size for high-fidelity points
         shp = slide.shapes.add_shape(MSO_SHAPE.OVAL, x - size/2, y - size/2, size, size)
         shp.line.color.rgb = RGBColor(255, 255, 255)
-        shp.line.width = Pt(1.0)
+        shp.line.width = Pt(1.5)
         
         if point.get("type") == "hollow":
             shp.fill.solid()
@@ -214,9 +214,9 @@ class PPTConverter:
         tf.text = text
         for para in tf.paragraphs:
             para.font.color.rgb = RGBColor(255, 255, 255)
-            para.font.size = Pt(18) # Increased size
+            para.font.size = Pt(22) # Professional presentation size
             para.font.bold = True
-            para.font.name = "Inter"
+            para.font.name = "Arial" # More common premium font for PPT
 
     def export_as_png(self, data, output_path):
         """Matplotlib을 사용하여 고해상도 PNG 그래프 생성 (웹 전시용)"""
