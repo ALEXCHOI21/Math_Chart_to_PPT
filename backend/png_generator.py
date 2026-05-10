@@ -19,9 +19,27 @@ class PNGGenerator:
         """
         plt.rcParams['mathtext.fontset'] = 'cm'  # LaTeX 스타일 폰트
 
-        fig, ax = plt.subplots(figsize=(8, 8))
-        ax.patch.set_alpha(0.0)
+        # ── 1. 축 범위 및 캔버스 비율 설정 (Pixel-Perfect Overlay 핵심) ──
+        axes_data = data.get("axes", {})
+        # 기존 호환성 유지: image_x_range가 없으면 x_range 사용
+        x_min, x_max = axes_data.get("image_x_range", axes_data.get("x_range", [-1, 5]))
+        y_min, y_max = axes_data.get("image_y_range", axes_data.get("y_range", [-1, 4]))
+
+        width_math = x_max - x_min
+        height_math = y_max - y_min
+        if height_math <= 0: height_math = 1
+        
+        # 캔버스 종횡비를 수학적 범위 비율과 일치시킴
+        aspect_ratio = width_math / height_math
+        fig_width = 10.0
+        fig_height = fig_width / aspect_ratio
+
+        fig = plt.figure(figsize=(fig_width, fig_height))
         fig.patch.set_alpha(0.0)
+        
+        # 여백(margin)을 0으로 만들어 픽셀 매핑을 완벽하게 맞춤
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.patch.set_alpha(0.0)
 
         WHITE  = 'white'
         GRAY   = '#dddddd'
@@ -30,14 +48,9 @@ class PNGGenerator:
         LW_DSH = 1.2   # Clear dashed lines
         FS     = 20    # Enhanced font size for readability
 
-        # ── 1. 축 범위 설정 ──────────────────────────────────────
-        axes_data = data.get("axes", {})
-        x_min, x_max = axes_data.get("x_range", [-1, 5])
-        y_min, y_max = axes_data.get("y_range", [-1, 4])
-
-        # Padding for aesthetic breathing room
-        x_pad = (x_max - x_min) * 0.1
-        y_pad = (y_max - y_min) * 0.1
+        # Padding 제거 (원본 프레임과 정확히 매핑하기 위해 캔버스 가장자리까지 사용)
+        x_pad = 0
+        y_pad = 0
 
         # ── 2. x축 · y축 화살표 (Fancy arrowheads) ────────────────────────
         ax.annotate('', xy=(x_max + x_pad*0.2, 0), xytext=(x_min, 0),
@@ -207,8 +220,8 @@ class PNGGenerator:
                     .replace(".jpg",  ".png")
                     .replace(".jpeg", ".png"))
         output_path = os.path.join(self.output_dir, out_name)
-        plt.savefig(output_path, transparent=True, dpi=300,
-                    bbox_inches='tight', pad_inches=0.1)
+        # 여백 없이 정확한 크기로 저장 (bbox_inches='tight' 제거)
+        plt.savefig(output_path, transparent=True, dpi=300, pad_inches=0.0)
         plt.close(fig)
         return output_path
 
