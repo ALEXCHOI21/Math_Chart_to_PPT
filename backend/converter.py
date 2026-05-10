@@ -30,7 +30,7 @@ class PPTConverter:
         background = slide.background
         fill = background.fill
         fill.solid()
-        fill.fore_color.rgb = RGBColor(30, 30, 35)
+        fill.fore_color.rgb = RGBColor(0, 0, 0) # Pitch Black to match site
 
         # 1. 축 그리기 (화살표 포함)
         self._draw_axes(slide, data.get("axes", {}))
@@ -118,7 +118,7 @@ class PPTConverter:
         
         shape = builder.convert_to_shape()
         # 색상 처리
-        hex_color = curve.get("color", "#00E5FF").replace("#", "")
+        hex_color = curve.get("color", "#FFFFFF").replace("#", "")
         r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
         
         shape.line.color.rgb = RGBColor(r, g, b)
@@ -189,7 +189,7 @@ class PPTConverter:
         
         if point.get("type") == "hollow":
             shp.fill.solid()
-            shp.fill.fore_color.rgb = RGBColor(10, 10, 10) # 배경과 유사한 어두운 색
+            shp.fill.fore_color.rgb = RGBColor(0, 0, 0) # Background match
         else:
             shp.fill.solid()
             shp.fill.fore_color.rgb = RGBColor(255, 255, 255)
@@ -215,9 +215,9 @@ class PPTConverter:
         if isinstance(data, list) and len(data) > 0:
             data = data[0]
 
-        plt.figure(figsize=(10, 8), facecolor='#1e1e23')
+        plt.figure(figsize=(10, 8), facecolor='black')
         ax = plt.gca()
-        ax.set_facecolor('#1e1e23')
+        ax.set_facecolor('black')
 
         # 축 설정
         axes = data.get("axes", {})
@@ -249,12 +249,12 @@ class PPTConverter:
                 spl_x = make_interp_spline(t, pts[:, 0], k=min(3, len(pts)-1))(t_new)
                 spl_y = make_interp_spline(t, pts[:, 1], k=min(3, len(pts)-1))(t_new)
                 
-                color = curve.get("color", "#00E5FF")
+                color = curve.get("color", "#FFFFFF")
                 width = curve.get("width", 2.5)
                 ls = '--' if curve.get("style") == "dashed" else '-'
                 plt.plot(spl_x, spl_y, color=color, linewidth=width, linestyle=ls)
             elif len(pts) == 2:
-                plt.plot(pts[:, 0], pts[:, 1], color=curve.get("color", "#00E5FF"), linewidth=curve.get("width", 2.5))
+                plt.plot(pts[:, 0], pts[:, 1], color=curve.get("color", "#FFFFFF"), linewidth=curve.get("width", 2.5))
 
         # 점선
         for dl in data.get("dashed_lines", []):
