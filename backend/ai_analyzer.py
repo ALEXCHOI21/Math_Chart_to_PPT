@@ -29,51 +29,70 @@ class GraphAnalyzer:
     흰색 투명 PNG 재현용 (극한, 점선, 라벨, 화살표 포함).
     """
 
-    MODEL = "gemini-2.5-flash"
+    MODEL = "gemini-2.5-pro"
 
-    PROMPT = """당신은 세계 최고의 수학 교육용 그래프 분석 전문가입니다. 이미지에서 수학 그래프를 완벽하게 재구성할 수 있도록 정밀한 JSON 데이터를 생성하십시오.
+    PROMPT = """당신은 전 세계 수학 교재를 만드는 '수학 그래프 디지털화'의 정점(Zenith)에 있는 전문가입니다. 
+이미지에서 그래프의 모든 기하학적 요소와 수식을 한 치의 오차 없이 정밀한 JSON 데이터로 추출하는 것이 당신의 사명입니다.
 
-[분석 핵심 원칙 - Zero-Defect]
-1. 곡선(Curves)의 미학:
-   - 곡선은 절대로 각지면 안 됩니다. 곡률이 큰 구간(예: 굴곡진 부위, 극점 근처)은 좌표를 극도로 촘촘하게(최소 0.05 단위 간격) 추출하십시오.
-   - 곡선이 축과 만나는 지점(절편), 함숫값이 불연속인 지점을 수학적으로 정확하게 파악하십시오.
-2. 기하학적 정밀도:
-   - 원점(O), 축 라벨(x, y), 좌표값(a, L) 등의 위치를 이미지와 1:1로 일치시키십시오.
-   - 보조선(Dashed Lines)은 함숫값의 대응 관계를 명확히 보여주어야 합니다.
-3. 화살표(Arrows)와 흐름:
-   - 극한(Limit)의 흐름을 나타내는 화살표를 빠짐없이 추출하십시오. 
-   - 특히 곡선을 따라가는 화살표(`is_curved`: true)는 곡선상의 점들을 정확히 따라가는 15개 이상의 좌표 리스트를 포함해야 합니다.
-4. 라벨 배치:
-   - 라벨은 텍스트 내용뿐만 아니라 위치(`pos`)가 매우 중요합니다. 그래프 선이나 점과 겹치지 않도록 미세 조정된 좌표를 제공하십시오.
+[분석 핵심 원칙 - Zero-Defect & Ultra-Precision]
+1. 곡선(Curves)의 생명력:
+   - 곡선은 절대로 꺾인 선으로 표현되어서는 안 됩니다. 
+   - **중요**: 곡선 하나당 최소 20개에서 50개 사이의 점 좌표(`points`)를 추출하십시오. 특히 굴곡이 있는 지점(극대, 극소, 변곡점) 주변은 좌표를 더욱 촘촘하게 배치하십시오.
+   - 점이 부족하면 그래프가 직선으로 렌더링되니 반드시 20개 이상의 점을 확보하십시오.
 
-[출력 JSON 구조]
+2. 극한 및 흐름 화살표 (Flow Arrows):
+   - 이미지에 곡선을 따라 움직이는 작은 화살표(극한의 수렴/발산 표현 등)가 있다면 반드시 `arrows` 항목에 포함하십시오.
+   - `is_curved: true`로 설정하고, 화살표의 경로(`points`)를 곡선과 동일하게 촘촘히 묘사하십시오.
+
+3. 텍스트 및 라벨 배치:
+   - 모든 수식($y=f(x)$ 등)과 변수($a, L, x, y, O$)를 누락 없이 추출하십시오.
+   - 라벨의 위치(`pos`)는 실제 이미지에서 텍스트의 중심점 좌표를 기준으로 하되, 선이나 점과 겹쳐서 가독성이 떨어지지 않도록 미세하게(0.1 단위) 조정하십시오.
+
+4. 기하학적 구성 요소:
+   - 빈 원(Hollow circle)과 채워진 원(Filled circle)을 정확히 구분하십시오.
+   - 보조 점선(Dashed Lines)의 시작과 끝을 이미지와 일치시키십시오.
+
+[출력 JSON 구조 가이드]
 [
   {
     "chart_id": 1,
     "axes": {
-      "x_range": [min, max],
-      "y_range": [min, max],
+      "x_range": [min, max], // 예: [-2, 6]
+      "y_range": [min, max], // 예: [-1, 5]
       "origin_label": "O", "x_label": "x", "y_label": "y"
     },
     "curves": [
       {
-        "points": [[x1,y1],[x2,y2],...], // 곡선을 완벽히 묘사하는 100~200개 점 (초정밀)
-        "label": "y=f(x)", "label_pos": [lx, ly], "style": "solid", "width": 2.5
+        "points": [[x1,y1], [x2,y2], ..., [x50,y50]], // 20~50개의 촘촘한 좌표
+        "label": "y=f(x)", 
+        "label_pos": [x, y], 
+        "style": "solid", 
+        "color": "#FFFFFF",
+        "width": 2.5
       }
     ],
     "arrows": [
       {
-        "from": [x,y], "to": [x,y],
-        "is_curved": true/false,
-        "points": [[x1,y1],[x2,y2],...], // 곡선형 화살표일 경우 경로 점들
+        "from": [x1,y1], "to": [x2,y2],
+        "is_curved": true,
+        "points": [[x,y], ...], // 곡선을 따라가는 화살표의 경로
         "label": ""
       }
     ],
-    "points": [{"x": x, "y": y, "type": "hollow/filled", "color": "#FFFFFF"}],
-    "dashed_lines": [{"type": "horizontal/vertical", "val": v, "start": s, "end": e}],
-    "labels": [{"text": "f(a)", "pos": [x, y]}]
+    "points": [
+      {"x": a, "y": L, "type": "hollow", "color": "#FFFFFF"}
+    ],
+    "dashed_lines": [
+      {"type": "vertical", "val": a, "start": 0, "end": L},
+      {"type": "horizontal", "val": L, "start": 0, "end": a}
+    ],
+    "labels": [
+      {"text": "a", "pos": [a, -0.3]},
+      {"text": "L", "pos": [-0.4, L]}
+    ]
   }
-]"""
+]
+마지막으로, 당신은 전문가로서 수식의 폰트가 깔끔하고 배치가 아름다워야 함을 명심하십시오."""
 
     async def analyze(self, image_path: str) -> list:
         """이미지 경로를 받아 그래프 JSON 데이터 리스트를 반환."""

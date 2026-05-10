@@ -74,7 +74,9 @@ class PPTConverter:
         line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, sx, sy, ex, ey)
         line.line.color.rgb = RGBColor(255, 255, 255)
         line.line.width = Pt(1.5)
-        line.line.end_arrowhead = 5 # Stealth arrow
+        line.line.end_arrowhead = 1  # Standard arrow
+        line.line.end_arrow_width = 3 # Large
+        line.line.end_arrow_length = 3 # Large
 
         # Y축 (Professional thin line)
         sx, sy = self._to_ppt_coords(0, y_range[0])
@@ -82,7 +84,9 @@ class PPTConverter:
         line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, sx, sy, ex, ey)
         line.line.color.rgb = RGBColor(255, 255, 255)
         line.line.width = Pt(1.5)
-        line.line.end_arrowhead = 5 # Stealth arrow
+        line.line.end_arrowhead = 1  # Standard arrow
+        line.line.end_arrow_width = 3 # Large
+        line.line.end_arrow_length = 3 # Large
 
     def _draw_curve(self, slide, curve):
         pts = curve.get("points", [])
@@ -166,23 +170,27 @@ class PPTConverter:
                 px, py = self._to_ppt_coords(draw_pts[i][0], draw_pts[i][1])
                 builder.add_line_segments([(px, py)])
             shape = builder.convert_to_shape()
-            shape.line.color.rgb = RGBColor(180, 180, 180)
+            shape.line.color.rgb = RGBColor(255, 255, 255)
             shape.line.width = Pt(1.5)
             shape.line.end_arrowhead = 1
+            shape.line.end_arrow_width = 2
+            shape.line.end_arrow_length = 2
         else:
             fx, fy = arrow.get("from", [0, 0])
             tx, ty = arrow.get("to", [0, 0])
             sx, sy = self._to_ppt_coords(fx, fy)
             ex, ey = self._to_ppt_coords(tx, ty)
             line = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, sx, sy, ex, ey)
-            line.line.color.rgb = RGBColor(180, 180, 180)
+            line.line.color.rgb = RGBColor(255, 255, 255)
             line.line.width = Pt(1.2)
             line.line.end_arrowhead = 1
+            line.line.end_arrow_width = 2
+            line.line.end_arrow_length = 2
 
     def _draw_point(self, slide, point):
         coord = point.get("coord") or [point.get("x", 0), point.get("y", 0)]
         x, y = self._to_ppt_coords(coord[0], coord[1])
-        size = Pt(8)
+        size = Pt(12) # Increased size
         shp = slide.shapes.add_shape(MSO_SHAPE.OVAL, x - size/2, y - size/2, size, size)
         shp.line.color.rgb = RGBColor(255, 255, 255)
         shp.line.width = Pt(1.0)
@@ -206,9 +214,9 @@ class PPTConverter:
         tf.text = text
         for para in tf.paragraphs:
             para.font.color.rgb = RGBColor(255, 255, 255)
-            para.font.size = Pt(14)
+            para.font.size = Pt(18) # Increased size
             para.font.bold = True
-            para.font.name = "Inter" # High-end font
+            para.font.name = "Inter"
 
     def export_as_png(self, data, output_path):
         """Matplotlib을 사용하여 고해상도 PNG 그래프 생성 (웹 전시용)"""
@@ -236,9 +244,9 @@ class PPTConverter:
         plt.arrow(0, yr[0]-0.2, 0, yr[1]-yr[0]+0.4, head_width=0.15, head_length=0.2, fc='white', ec='white', length_includes_head=True)
 
         # 축 라벨
-        plt.text(xr[1] + 0.3, 0.2, axes.get("x_label", "x"), color='white', fontsize=14, fontweight='bold', fontname='Inter')
-        plt.text(0.2, yr[1] + 0.3, axes.get("y_label", "y"), color='white', fontsize=14, fontweight='bold', fontname='Inter')
-        plt.text(-0.3, -0.4, axes.get("origin_label", "O"), color='white', fontsize=14, fontweight='bold', fontname='Inter')
+        plt.text(xr[1] + 0.3, 0.2, axes.get("x_label", "x"), color='white', fontsize=18, fontweight='bold', fontname='Inter')
+        plt.text(0.2, yr[1] + 0.3, axes.get("y_label", "y"), color='white', fontsize=18, fontweight='bold', fontname='Inter')
+        plt.text(-0.3, -0.4, axes.get("origin_label", "O"), color='white', fontsize=18, fontweight='bold', fontname='Inter')
 
         # 곡선 그리기 (Smooth)
         for curve in data.get("curves", []):
@@ -268,8 +276,8 @@ class PPTConverter:
         for pt in data.get("points", []):
             coord = pt.get("coord") or [pt.get("x", 0), pt.get("y", 0)]
             m = 'o'
-            fc = 'white' if pt.get("type") != "hollow" else 'none'
-            plt.plot(coord[0], coord[1], marker=m, markerfacecolor=fc, markeredgecolor='white', markersize=8)
+            fc = 'black' if pt.get("type") == "hollow" else 'white'
+            plt.plot(coord[0], coord[1], marker=m, markerfacecolor=fc, markeredgecolor='white', markersize=10)
 
         # 화살표
         for arr in data.get("arrows", []):
@@ -288,7 +296,7 @@ class PPTConverter:
         # 라벨
         for lbl in data.get("labels", []):
             p = lbl.get("pos") or [lbl.get("x", 0), lbl.get("y", 0)]
-            plt.text(p[0], p[1], lbl.get("text", ""), color='white', fontsize=12, fontname='Inter')
+            plt.text(p[0], p[1], lbl.get("text", ""), color='white', fontsize=16, fontname='Inter')
 
         plt.axis('off')
         plt.tight_layout()

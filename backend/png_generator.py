@@ -28,7 +28,7 @@ class PNGGenerator:
         LW_AX  = 1.5   # Professional thin axes
         LW_CRV = 2.5   # Elegant curve thickness
         LW_DSH = 1.0   # Delicate dashed lines
-        FS     = 14    # Standard academic font size
+        FS     = 18    # Standard academic font size (Increased)
 
         # ── 1. 축 범위 설정 ──────────────────────────────────────
         axes_data = data.get("axes", {})
@@ -69,8 +69,8 @@ class PNGGenerator:
             if len(pts) < 2: continue
             
             style = "--" if curve.get("style") == "dashed" else "-"
-            # Premium color palette
-            curve_color = '#00f2ff' if curve.get("style") != "dashed" else '#bbbbbb'
+            # Premium color palette (Force WHITE for all non-dashed curves)
+            curve_color = WHITE if curve.get("style") != "dashed" else GRAY
             lw = curve.get("width", LW_CRV)
             
             if len(pts) >= 3:
@@ -112,9 +112,9 @@ class PNGGenerator:
             color = pt.get("color", WHITE)
 
             if pt_type == "hollow":
-                ax.scatter(px, py, facecolors='none', edgecolors=color, s=80, linewidth=2.5, zorder=6)
+                ax.scatter(px, py, facecolors='black', edgecolors=color, s=120, linewidth=2.5, zorder=6)
             else:
-                ax.scatter(px, py, color=color, s=80, zorder=6)
+                ax.scatter(px, py, color=color, s=120, zorder=6)
 
         # ── 7. 라벨 처리 (labels) ─────────────────────────────
         import matplotlib.patheffects as PathEffects
@@ -183,7 +183,8 @@ class PNGGenerator:
             txt_obj = ax.text(lx, ly, text,
                     fontsize=FS+4, color=WHITE,
                     fontweight='bold', zorder=6)
-            txt_obj.set_path_effects(outline)
+            # Remove outline for cleaner look on black background
+            # txt_obj.set_path_effects(outline)
 
         # ── 10. 최종 저장 ────────────────────────────────────────
         ax.set_xlim(x_min - x_pad, x_max + x_pad)
