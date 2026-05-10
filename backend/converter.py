@@ -3,6 +3,9 @@ from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.dml.color import RGBColor
 import math
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.interpolate import make_interp_spline
 
 class PPTConverter:
     def __init__(self):
@@ -206,3 +209,88 @@ class PPTConverter:
             para.font.size = Pt(14)
             para.font.bold = True
             para.font.name = "Inter" # High-end font
+
+    def export_as_png(self, data, output_path):
+        """Matplotlib을 사용하여 고해상도 PNG 그래프 생성 (웹 전시용)"""
+        if isinstance(data, list) and len(data) > 0:
+            data = data[0]
+
+        plt.figure(figsize=(10, 8), facecolor='#1e1e23')
+        ax = plt.gca()
+        ax.set_facecolor('#1e1e23')
+
+        # 축 설정
+        axes = data.get("axes", {})
+        xr = axes.get("x_range", [-5, 5])
+        yr = axes.get("y_range", [-5, 5])
+        
+        plt.xlim(xr[0] - 0.5, xr[1] + 0.5)
+        plt.ylim(yr[0] - 0.5, yr[1] + 0.5)
+
+        # 축 선 (Professional thin white lines)
+        plt.axhline(0, color='white', linewidth=1.5)
+        plt.axvline(0, color='white', linewidth=1.5)
+
+        # 축 화살표
+        plt.arrow(xr[0]-0.2, 0, xr[1]-xr[0]+0.4, 0, head_width=0.15, head_length=0.2, fc='white', ec='white', length_includes_head=True)
+        plt.arrow(0, yr[0]-0.2, 0, yr[1]-yr[0]+0.4, head_width=0.15, head_length=0.2, fc='white', ec='white', length_includes_head=True)
+
+        # 축 라벨
+        plt.text(xr[1] + 0.3, 0.2, axes.get("x_label", "x"), color='white', fontsize=14, fontweight='bold', fontname='Inter')
+        plt.text(0.2, yr[1] + 0.3, axes.get("y_label", "y"), color='white', fontsize=14, fontweight='bold', fontname='Inter')
+        plt.text(-0.3, -0.4, axes.get("origin_label", "O"), color='white', fontsize=14, fontweight='bold', fontname='Inter')
+
+        # 곡선 그리기 (Smooth)
+        for curve in data.get("curves", []):
+            pts = np.array(curve.get("points", []))
+            if len(pts) >= 3:
+                t = np.linspace(0, 1, len(pts))
+                t_new = np.linspace(0, 1, 300)
+                spl_x = make_interp_spline(t, pts[:, 0], k=min(3, len(pts)-1))(t_new)
+                spl_y = make_interp_spline(t, pts[:, 1], k=min(3, len(pts)-1))(t_new)
+                
+                color = curve.get("color", "#00E5FF")
+                width = curve.get("width", 2.5)
+                ls = '--' if curve.get("style") == "dashed" else '-'
+                plt.plot(spl_x, spl_y, color=color, linewidth=width, linestyle=ls)
+            elif len(pts) == 2:
+                plt.plot(pts[:, 0], pts[:, 1], color=curve.get("color", "#00E5FF"), linewidth=curve.get("width", 2.5))
+
+        # 점선
+        for dl in data.get("dashed_lines", []):
+            val = dl.get("val") or (dl.get("y", 0) if dl.get("type") == "horizontal" else dl.get("x", 0))
+            if dl.get("type") == "horizontal":
+                plt.hlines(val, dl.get("start", 0), dl.get("end", 5), colors='gray', linestyles='dashed', linewidth=1)
+            else:
+                plt.vlines(val, dl.get("start", 0), dl.get("end", 5), colors='gray', linestyles='dashed', linewidth=1)
+
+        # 점
+        for pt in data.get("points", []):
+            coord = pt.get("coord") or [pt.get("x", 0), pt.get("y", 0)]
+            m = 'o'
+            fc = 'white' if pt.get("type") != "hollow" else 'none'
+            plt.plot(coord[0], coord[1], marker=m, markerfacecolor=fc, markeredgecolor='white', markersize=8)
+
+        # 화살표
+        for arr in data.get("arrows", []):
+            if arr.get("is_curved") and "points" in arr:
+                pts = np.array(arr["points"])
+                plt.plot(pts[:, 0], pts[:, 1], color='#B4B4B4', linewidth=1.5)
+                # 마지막 점에 화살표 머리
+                plt.annotate('', xy=(pts[-1][0], pts[-1][1]), xytext=(pts[-2][0], pts[-2][1]),
+                             arrowprops=dict(arrowstyle='->', color='#B4B4B4', lw=1.5))
+            else:
+                f = arr.get("from", [0, 0])
+                t = arr.get("to", [0, 0])
+                plt.annotate('', xy=(t[0], t[1]), xytext=(f[0], f[1]),
+                             arrowprops=dict(arrowstyle='->', color='#B4B4B4', lw=1.5))
+
+        # 라벨
+        for lbl in data.get("labels", []):
+            p = lbl.get("pos") or [lbl.get("x", 0), lbl.get("y", 0)]
+            plt.text(p[0], p[1], lbl.get("text", ""), color='white', fontsize=12, fontname='Inter')
+
+        plt.axis('off')
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=150, bbox_inches='tight', pad_inches=0.1)
+        plt.close()

@@ -1,0 +1,38 @@
+[
+  {
+    "original": "1.jpg",
+    "result_png": "results/1_result.png",
+    "result_pptx": "results/1_result.pptx",
+    "date": "2026-05-10 13:27:19"
+  },
+  {
+    "original": "2.jpg",
+    "result_png": "results/2_result.png",
+    "result_pptx": "results/2_result.pptx",
+    "date": "2026-05-10 13:27:19"
+  },
+  {
+    "original": "3.jpg",
+    "result_png": "results/3_result.png",
+    "result_pptx": "results/3_result.pptx",
+    "date": "2026-05-10 13:27:19"
+  },
+  {
+    "original": "4.jpg",
+    "result_png": "results/4_result.png",
+    "result_pptx": "results/4_result.pptx",
+    "date": "2026-05-10 13:27:19"
+  },
+  {
+    "original": "5.jpg",
+    "result_png": "results/5_result.png",
+    "result_pptx": "results/5_result.pptx",
+    "date": "2026-05-10 13:27:19"
+  },
+  {
+    "original": "6.jpg",
+    "result_png": "results/6_result.png",
+    "result_pptx": "results/6_result.pptx",
+    "date": "2026-05-10 13:27:19"
+  }
+]

@@ -94,3 +94,47 @@ async function handleFileUpload(file) {
         loadingOverlay.style.display = 'none';
     }
 }
+
+// Gallery Loading Logic
+async function loadGallery() {
+    const galleryGrid = document.getElementById('gallery-grid');
+    if (!galleryGrid) return;
+
+    try {
+        const response = await fetch('results.json');
+        if (!response.ok) {
+            console.log('No gallery data found yet.');
+            return;
+        }
+        
+        const results = await response.json();
+        if (results.length === 0) return;
+
+        galleryGrid.innerHTML = ''; // Clear placeholder
+
+        results.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'gallery-item';
+            card.innerHTML = `
+                <div class="gallery-preview">
+                    <img src="${item.result_png}" alt="Result Preview">
+                </div>
+                <div class="gallery-info">
+                    <h4>${item.original} 변환 결과</h4>
+                    <p>분석 일시: ${item.date}</p>
+                </div>
+                <div class="gallery-actions">
+                    <a href="${item.result_png}" target="_blank" class="gallery-btn view">크게 보기</a>
+                    <a href="${item.result_pptx}" download class="gallery-btn download">PPT 다운로드</a>
+                </div>
+            `;
+            galleryGrid.appendChild(card);
+        });
+    } catch (error) {
+        console.error('Gallery Error:', error);
+        galleryGrid.innerHTML = '<p>갤러리를 불러오지 못했습니다.</p>';
+    }
+}
+
+// Initial Load
+document.addEventListener('DOMContentLoaded', loadGallery);
