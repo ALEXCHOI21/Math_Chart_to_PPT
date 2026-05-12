@@ -28,5 +28,10 @@
         "id": "6",
         "png": "output/6.png",
         "pptx": "output/6.pptx"
+    },
+    {
+        "id": "7",
+        "png": "output/7.png",
+        "pptx": "output/7.pptx"
     }
 ]
